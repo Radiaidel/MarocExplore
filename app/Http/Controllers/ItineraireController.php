@@ -55,8 +55,9 @@ class ItineraireController extends Controller
         ]);
     
         $user = Auth::user();
+        // $itinerary = $user->itineraries()->create([
     
-        $itinerary = $user->itineraries()->create([
+        $itinerary = $user->itineraries->create([
             'title' => $request->input('title'),
             'category' => $request->input('category'),
             'duration' => $request->input('duration'),
