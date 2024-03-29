@@ -21,4 +21,8 @@ class Itineraire extends Model
     {
         return $this->hasMany(Destination::class);
     }
+    public function wishlist()
+{
+    return $this->belongsToMany(User::class, 'wishlists', 'itineraire_id', 'user_id');
+}
 }

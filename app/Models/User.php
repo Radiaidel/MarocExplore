@@ -50,6 +50,7 @@ class User extends Authenticatable
 
     public function wishlist()
     {
-        return $this->belongsToMany(Itinerary::class, 'wishlist', 'user_id', 'itinerary_id')->withTimestamps();
+        return $this->belongsToMany(Itineraire::class, 'wishlists', 'user_id', 'itineraire_id');
     }
+    
 }

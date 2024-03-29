@@ -6,28 +6,35 @@ use App\Models\Itineraire ;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Wishlist; // Assurez-vous d'importer le modèle Wishlist si nécessaire
 class ItineraireController extends Controller
 {
     public function index(Request $request)
     {
         $itineraries = Itineraire::query();
-
+    
         if ($request->has('category')) {
             $itineraries->where('category', $request->category);
         }
-
+    
         if ($request->has('duration')) {
             $itineraries->where('duration', $request->duration);
         }
-
+    
         if ($request->has('search')) {
             $search = $request->search;
             $itineraries->where('title', 'like', "%$search%");
         }
-
-        return response()->json($itineraries);
+    
+        // Chargez les destinations associées à chaque itinéraire
+        $itineraries->with('destinations');
+    
+        // Exécuter la requête et récupérer les résultats
+        $itineraries = $itineraries->get();
+    
+        return response()->json($itineraries , 200);
     }
+    
 
     public function show(Itineraire $itinerary)
     {
@@ -74,7 +81,7 @@ class ItineraireController extends Controller
     
     
 
-    public function update(Request $request, Itinerary $itinerary)
+    public function update(Request $request, Itineraire $itinerary)
     {
         $request->validate([
             'title' => 'required|string',
@@ -98,7 +105,7 @@ class ItineraireController extends Controller
         return response()->json($itinerary);
     }
 
-    public function destroy(Itinerary $itinerary)
+    public function destroy(Itineraire $itinerary)
     {
         $this->authorize('delete', $itinerary);
 
@@ -106,12 +113,23 @@ class ItineraireController extends Controller
 
         return response()->json(['message' => 'Itinerary deleted']);
     }
-
-    public function addToWishlist(Itinerary $itinerary)
+    public function addToWishlist(Itineraire $itinerary)
     {
         $user = Auth::user();
-        $user->wishlist->attach($itinerary->id);
-
-        return response()->json(['message' => 'Itinerary added to wishlist']);
+    
+        // Vérifie si l'itinéraire est déjà dans la liste de souhaits de l'utilisateur
+        if ($user->wishlist->contains($itinerary)) {
+            return response()->json(['message' => 'Itinerary is already in wishlist'], 201);
+        }
+    
+        // Ajoute l'itinéraire à la liste de souhaits de l'utilisateur
+        Wishlist::create([
+            'user_id' => $user->id,
+            'itineraire_id' => $itinerary->id,
+        ]);
+    
+        return response()->json(['message' => 'Itinerary added to wishlist'], 200);
     }
+    
+    
 }

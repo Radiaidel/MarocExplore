@@ -8,7 +8,7 @@ use App\Models\Itineraire as Itinerary;
 class Wishlist extends Model
 {
     protected $fillable = [
-        'user_id', 'itinerary_id',
+        'user_id', 'itineraire_id',
     ];
 
     public function user()
